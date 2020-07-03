@@ -87,7 +87,7 @@ target_link_libraries(libmosquitto ${LIBRARIES})
 
 set_target_properties(libmosquitto PROPERTIES
 	OUTPUT_NAME mosquitto
-	VERSION ${VERSION}
+        VERSION ${PROJECT_VERSION}
 	SOVERSION 1
 )
 

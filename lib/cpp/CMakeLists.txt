@@ -10,7 +10,7 @@ set_target_properties(mosquittopp PROPERTIES
 )
 target_link_libraries(mosquittopp libmosquitto)
 set_target_properties(mosquittopp PROPERTIES
-	VERSION ${VERSION}
+        VERSION ${PROJECT_VERSION}
 	SOVERSION 1
 )
 install(TARGETS mosquittopp RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
