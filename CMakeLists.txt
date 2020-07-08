@@ -10,6 +10,7 @@ project(mosquitto)
 
 cmake_minimum_required(VERSION 2.8)
 # Only for version 3 and up. cmake_policy(SET CMP0042 NEW)
+
 set(PROJECT_VERSION_MAJOR 1)
 set(PROJECT_VERSION_MINOR 6)
 set(PROJECT_VERSION_PATCH 10)
@@ -105,18 +106,9 @@ endif (DOCUMENTATION)
 # ========================================
 # Install config file
 # ========================================
-
 install(FILES mosquitto.conf aclfile.example pskfile.example pwfile.example DESTINATION "${CMAKE_INSTALL_SYSCONFDIR}/mosquitto")
 
 
-# ========================================
-# Install pkg-config files
-# ========================================
-
-configure_file(libmosquitto.pc.in libmosquitto.pc @ONLY)
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libmosquitto.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
-configure_file(libmosquittopp.pc.in libmosquittopp.pc @ONLY)
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libmosquittopp.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 
 # ========================================
 # Testing
@@ -124,7 +116,7 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libmosquittopp.pc" DESTINATION "${CMA
 enable_testing()
 
 # =========================================
-# Package creation using cpack
+# Package creation using cpack (Balluff)
 # =========================================
 
 set( CPACK_PACKAGE_NAME ${PROJECT_NAME} )
@@ -198,10 +190,10 @@ if( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" )
 
     set( CPACK_DEBIAN_FILE_NAME "DEB-DEFAULT" ) # Use default naming scheme
 
-    set( CPACK_DEBIAN_LIBRARY_PACKAGE_NAME ${CPACK_PACKAGE_NAME} )
+    set( CPACK_DEBIAN_LIBRARY_PACKAGE_NAME "${CPACK_PACKAGE_NAME}" )
     set( CPACK_DEBIAN_LIBRARY_PACKAGE_SHLIBDEPS 1 )
 
-    set( CPACK_DEBIAN_DEVEL_PACKAGE_DEPENDS "cmake (>= ${CMAKE_MINIMUM_REQUIRED_VERSION}), qmqtt (>= ${CPACK_PACKAGE_VERSION})" )
+    set( CPACK_DEBIAN_DEVEL_PACKAGE_DEPENDS "cmake (>= ${CMAKE_MINIMUM_REQUIRED_VERSION}), mosquitto (>= ${CPACK_PACKAGE_VERSION})" )
     set( CPACK_DEBIAN_DEVEL_PACKAGE_NAME "${CPACK_PACKAGE_NAME}-dev" )
 
 elseif( ${CMAKE_HOST_WIN32} )

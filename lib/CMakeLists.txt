@@ -1,5 +1,6 @@
 add_subdirectory(cpp)
 
+include( GNUInstallDirs ) # needed to define vars used in install() directives.
 include_directories(${mosquitto_SOURCE_DIR} ${mosquitto_SOURCE_DIR}/lib
 			${STDBOOL_H_PATH} ${STDINT_H_PATH}
 			${OPENSSL_INCLUDE_DIR} ${PTHREAD_INCLUDE_DIR})
@@ -77,26 +78,30 @@ if (WITH_SRV)
 		message(WARNING "c-ares library not found.")
 	endif (ARES_HEADER)
 endif (WITH_SRV)
-
-add_library(libmosquitto SHARED ${C_SRC})
-set_target_properties(libmosquitto PROPERTIES
+set(LIB_NAME libmosquitto)
+add_library(${LIB_NAME} SHARED ${C_SRC})
+set_target_properties(${LIB_NAME} PROPERTIES
 	POSITION_INDEPENDENT_CODE 1
 )
 
-target_link_libraries(libmosquitto ${LIBRARIES})
+target_link_libraries(${LIB_NAME} ${LIBRARIES})
 
-set_target_properties(libmosquitto PROPERTIES
+set_target_properties(${LIB_NAME} PROPERTIES
 	OUTPUT_NAME mosquitto
         VERSION ${PROJECT_VERSION}
 	SOVERSION 1
 )
 
-install(TARGETS libmosquitto RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+install(TARGETS ${LIB_NAME}
+    EXPORT ${PROJECT_NAME}
+    COMPONENT Library
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 
 if (WITH_STATIC_LIBRARIES)
-	add_library(libmosquitto_static STATIC ${C_SRC})
+        add_library("${LIB_NAME}_static" STATIC ${C_SRC})
 	if (WITH_PIC)
-		set_target_properties(libmosquitto_static PROPERTIES
+                set_target_properties("${LIB_NAME}_static" PROPERTIES
 			POSITION_INDEPENDENT_CODE 1
 		)
 	endif (WITH_PIC)
@@ -108,8 +113,57 @@ if (WITH_STATIC_LIBRARIES)
 		VERSION ${VERSION}
 	)
 
-	target_compile_definitions(libmosquitto_static PUBLIC "LIBMOSQUITTO_STATIC")
-	install(TARGETS libmosquitto_static ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+        target_compile_definitions("${LIB_NAME}_static" PUBLIC "LIBMOSQUITTO_STATIC")
+        install(TARGETS "${LIB_NAME}_static"
+            EXPORT "{LIB_NAME}_static"
+            Component Devel
+            ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 endif (WITH_STATIC_LIBRARIES)
 
-install(FILES mosquitto.h DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+install(FILES mosquitto.h
+    COMPONENT Devel
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}" )
+
+install(
+    EXPORT ${PROJECT_NAME}
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+    FILE ${LIB_NAME}Targets.cmake
+    COMPONENT Devel
+)
+
+# Generate a CMake file into the installation, to easily use the library
+install(
+    EXPORT      ${PROJECT_NAME}
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+    COMPONENT   Devel
+    OPTIONAL
+)
+
+
+include( CMakePackageConfigHelpers )
+
+file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake.in"
+      "@PACKAGE_INIT@\ninclude( \${CMAKE_CURRENT_LIST_DIR}/${LIB_NAME}Targets.cmake )" )
+
+configure_package_config_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake.in"
+    "${PROJECT_NAME}Config.cmake"
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+    PATH_VARS           CMAKE_INSTALL_LIBDIR
+)
+
+
+write_basic_package_version_file(
+    "${PROJECT_NAME}ConfigVersion.cmake"
+    VERSION       ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+
+install(
+    FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+    COMPONENT   Devel
+)
+
