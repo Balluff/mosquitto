@@ -188,11 +188,15 @@ if (UNIX)
 	endif (APPLE)
 endif (UNIX)
 
-install(TARGETS mosquitto RUNTIME DESTINATION "${CMAKE_INSTALL_SBINDIR}")
-install(FILES mosquitto_broker.h mosquitto_plugin.h DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+install(TARGETS mosquitto
+    RUNTIME DESTINATION "${CMAKE_INSTALL_SBINDIR}"
+    COMPONENT Library)
+install(FILES mosquitto_broker.h mosquitto_plugin.h
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+    COMPONENT Library)
 
 if (WITH_TLS)
 	add_executable(mosquitto_passwd mosquitto_passwd.c ../lib/misc_mosq.c)
 	target_link_libraries(mosquitto_passwd ${OPENSSL_LIBRARIES})
-	install(TARGETS mosquitto_passwd RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+        install(TARGETS mosquitto_passwd RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT Library)
 endif (WITH_TLS)

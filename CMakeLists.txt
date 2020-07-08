@@ -106,7 +106,9 @@ endif (DOCUMENTATION)
 # ========================================
 # Install config file
 # ========================================
-install(FILES mosquitto.conf aclfile.example pskfile.example pwfile.example DESTINATION "${CMAKE_INSTALL_SYSCONFDIR}/mosquitto")
+install(FILES mosquitto.conf aclfile.example pskfile.example pwfile.example
+    DESTINATION "${CMAKE_INSTALL_SYSCONFDIR}/mosquitto"
+    COMPONENT Library )
 
 
 

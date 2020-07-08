@@ -115,7 +115,7 @@ if (WITH_STATIC_LIBRARIES)
 
         target_compile_definitions("${LIB_NAME}_static" PUBLIC "LIBMOSQUITTO_STATIC")
         install(TARGETS "${LIB_NAME}_static"
-            EXPORT "{LIB_NAME}_static"
+            EXPORT "${LIB_NAME}_static"
             Component Devel
             ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 endif (WITH_STATIC_LIBRARIES)
